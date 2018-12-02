@@ -1,11 +1,11 @@
 <h1>Расписание эфиров</h1>
 
 <ul>
-<?php foreach ($args['events'] as $event): ?>
+    <?php foreach ($args['events'] as $event): ?>
     <li>
         <?= htmlspecialchars($event->day); ?>
         <i><?= htmlspecialchars($event->time); ?></i>
         <?= htmlspecialchars($event->title); ?>
     </li>
-<?php endforeach; ?>
+    <?php endforeach; ?>
 </ul>

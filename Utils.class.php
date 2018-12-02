@@ -13,7 +13,6 @@ class Utils
         if ($index >= count($arr)) {
             return '';
         }
-
         return trim($arr[$index]);
     }
 
@@ -23,14 +22,13 @@ class Utils
         ob_start();
         $var = ob_get_contents();
         ob_end_clean();
-
         return $var;
     }
 
     public static function visApiUrl($docId, $query, $sheetId)
     {
         return "https://docs.google.com/spreadsheets/d/$docId/gviz/tq?gid=$sheetId&tqx=out:csv&tq="
-               . rawurlencode($query);
+            .rawurlencode($query);
     }
 
 }

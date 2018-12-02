@@ -13,8 +13,10 @@ function main()
     $scheduleGenerator = new ScheduleGenerator();
 
     $webServer = new CachingWebServer(
-        $scheduleGenerator,
-        __DIR__ . '/schedule.cache.html',
+        function () use ($scheduleGenerator) {
+            return $scheduleGenerator->generate();
+        },
+        __DIR__.'/schedule.cache.html',
         REGEN_MINUTES * 60);
     $webServer->serve();
 }

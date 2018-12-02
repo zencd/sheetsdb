@@ -14,10 +14,7 @@ class CachingWebServer
      */
     private $cacheFile;
 
-    /**
-     * @var ContentGenerator генератор контента
-     */
-    private $contentGenerator;
+    private $generateContent;
 
     /**
      * @var int таймаут обновления кэша, в секундах
@@ -25,13 +22,13 @@ class CachingWebServer
     private $cacheTtl;
 
     public function __construct(
-        ContentGenerator &$contentGenerator,
+        $generateContent,
         $cacheFile,
         $cacheTtl
     ) {
-        $this->contentGenerator = $contentGenerator;
-        $this->cacheFile        = $cacheFile;
-        $this->cacheTtl         = $cacheTtl;
+        $this->generateContent = $generateContent;
+        $this->cacheFile = $cacheFile;
+        $this->cacheTtl = $cacheTtl;
     }
 
     public function serve()
@@ -109,7 +106,7 @@ class CachingWebServer
     private function sendLastModifiedHeader()
     {
         $mtime = filemtime($this->cacheFile);
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s", $mtime) . " GMT");
+        header("Last-Modified: ".gmdate("D, d M Y H:i:s", $mtime)." GMT");
     }
 
     private function sendHeadersAndContent(&$html_content)
@@ -124,21 +121,19 @@ class CachingWebServer
             isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])
             && file_exists($this->cacheFile)
             && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'])
-               >= filemtime($this->cacheFile);
+            >= filemtime($this->cacheFile);
     }
 
     private function isRefreshForced()
     {
         $forceKey = 'force';
-
         return isset($_GET[$forceKey]) && $_GET[$forceKey] == '1';
     }
 
     private function generateContentAndSaveToCache()
     {
-        $content = $this->contentGenerator->generate();
+        $content = ($this->generateContent)();
         file_put_contents($this->cacheFile, $content);
-
         return $content;
     }
 }

@@ -5,50 +5,37 @@ include_once 'Event.class.php';
 include_once 'Utils.class.php';
 
 /**
- * Контракт генератора контента.
- */
-interface ContentGenerator
-{
-    public function generate();
-}
-
-/**
  * Генератор расписания эфиров, HTML-текст.
  */
-class ScheduleGenerator implements ContentGenerator
+class ScheduleGenerator
 {
     public function generate()
     {
-        $upcomingEvents = array();
-        $this->loadSchedule($upcomingEvents);
-
-        $context     = array(
-            'events'     => $upcomingEvents,
+        $context = array(
+            'events' => $this->loadSchedule(),
         );
         $tplRendered = Utils::renderPhpTemplate('template.html', $context);
-
         return $tplRendered;
     }
 
-    private function loadSchedule(array &$upcomingEvents)
+    private function loadSchedule()
     {
-        //$file = fopen('schedule.cache.csv', 'r'); // debug
+        $events = array();
         $file = fopen($this->makeQueryUrl(), 'r');
         while (($csvLine = fgetcsv($file)) !== false) {
             $event = new Event($csvLine);
             if ( ! $event->isPassed()) {
-                array_push($upcomingEvents, $event);
+                array_push($events, $event);
             }
         }
         fclose($file);
+        return $events;
     }
 
     private function makeQueryUrl()
     {
         $today = Utils::makeLocalNow()->format('Y-m-d');
         $query = "select A,B,C where A >= date '$today' order by A, B";
-
-        //echo "query: $query\n"; // debug
         return Utils::visApiUrl(DOC_ID, $query, 0);
     }
 
